@@ -1,0 +1,64 @@
+Timing Report for Design: example_design
+Date: 2023-05-01
+Tool: PrimeTime v2022.03
+Clock Period: 10.0 ns
+
+Path P1     FF_Q        PI          2.345
+P1.1   NET1        PI          0.123
+P1.2   INV1        NET1        0.456
+P1.3   NET2        INV1        0.789
+P1.4   FF_D        NET2        0.977
+
+Path P2     NAND1_Y     PI2         3.210
+P2.1   NET3        PI2         0.210
+P2.2   BUF1        NET3        0.450
+P2.3   NET4        BUF1        0.670
+P2.4   NAND1       NET4        1.880
+
+Path P3     FF2_Q       FF1_Q       5.432
+P3.1   NET5        FF1_Q       0.321
+P3.2   NET6        NET5        0.567
+P3.3   NAND2       NET6        0.755
+P3.4   NET7        NAND2       1.111
+P3.5   BUF2        NET7        0.898
+P3.6   NET8        BUF2        0.689
+P3.7   FF2_D       NET8        1.091
+
+Path P4     PO1         FF3_Q       4.123
+P4.1   NET9        FF3_Q       0.543
+P4.2   BUF3        NET9        0.765
+P4.3   NET10       BUF3        1.056
+P4.4   NAND3       NET10       0.876
+P4.5   NET11       NAND3       0.883
+P4.6   PO1         NET11       0.000
+
+Path P5     FF4_Q       FF3_Q       5.321
+P5.1   NET12       FF3_Q       0.432
+P5.2   BUF4        NET12       0.675
+P5.3   NET13       BUF4        0.897
+P5.4   NOR1        NET13       0.876
+P5.5   NET14       NOR1        0.765
+P5.6   BUF5        NET14       0.876
+P5.7   NET15       BUF5        0.600
+P5.8   FF4_D       NET15       0.200
+
+Path P6     PO2         FF5_Q       3.987
+P6.1   NET16       FF5_Q       0.456
+P6.2   INV2        NET16       0.345
+P6.3   NET17       INV2        0.567
+P6.4   BUF6        NET17       0.789
+P6.5   NET18       BUF6        0.987
+P6.6   NAND4       NET18       0.843
+P6.7   PO2         NAND4       0.000
+
+Path P7     FF7_Q       FF6_Q       5.678
+P7.1   NET19       FF6_Q       0.432
+P7.2   BUF7        NET19       0.543
+P7.3   NET20       BUF7        0.654
+P7.4   INV3        NET20       0.765
+P7.5   NET21       INV3        0.876
+P7.6   INV42       NET21       1.234
+P7.7   NET22       INV42       0.841
+P7.8   FF7_D       NET22       0.333
+
+End of Timing Report 

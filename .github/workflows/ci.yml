@@ -1,0 +1,125 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build_type: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libgtest-dev tcl
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp ./lib/libgtest*.a /usr/lib
+
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install cmake googletest
+
+    - name: Create Build Directory
+      run: mkdir -p build
+
+    - name: Configure CMake
+      working-directory: ./build
+      run: cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+    - name: Build
+      working-directory: ./build
+      run: cmake --build . --config ${{ matrix.build_type }}
+
+    - name: Run Tests
+      working-directory: ./build
+      run: ctest -C ${{ matrix.build_type }} --verbose
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ clang-tidy clang-format cppcheck
+
+    - name: Run clang-format
+      run: |
+        find src tests -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror
+
+    - name: Run cppcheck
+      run: |
+        cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem src/
+
+    - name: Configure CMake for clang-tidy
+      run: |
+        mkdir -p build-lint
+        cd build-lint
+        cmake .. -DCMAKE_CXX_CLANG_TIDY="clang-tidy;-checks=bugprone-*,performance-*,readability-*,modernize-*"
+
+    - name: Build with clang-tidy
+      working-directory: ./build-lint
+      run: cmake --build . -- -j$(nproc)
+
+  package:
+    name: Create Package
+    needs: [build-and-test, code-quality]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      working-directory: ./build
+      run: cmake --build . --config Release
+
+    - name: Create Package
+      working-directory: ./build
+      run: |
+        mkdir -p package/bin
+        mkdir -p package/scripts
+        mkdir -p package/examples
+        mkdir -p package/docs
+        cp bin/timing_analysis package/bin/
+        cp ../scripts/*.tcl package/scripts/
+        cp ../examples/*.rpt package/examples/
+        cp ../docs/*.md package/docs/
+        cp ../README.md package/
+        cp ../LICENSE package/
+        cd package
+        tar -czvf ../timing-analysis-tool.tar.gz .
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v3
+      with:
+        name: timing-analysis-tool
+        path: build/timing-analysis-tool.tar.gz 
