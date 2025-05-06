@@ -22,7 +22,7 @@ A command-line application for parsing static timing reports, identifying critic
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/timing-analysis-tool.git
+git clone https://github.com/dhushyanth-h-m/timing-analysis-tool
 cd timing-analysis-tool
 
 # Create build directory
