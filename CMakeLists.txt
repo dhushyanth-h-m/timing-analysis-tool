@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.12)
 project(timing_analysis_tool VERSION 1.0.0 LANGUAGES CXX)
 
+# Set module path to find our modules
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Check for filesystem library
+include(Filesystem)
 
 # Add compiler warnings
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -30,6 +36,9 @@ set(SOURCES
 # Create executable
 add_executable(timing_analysis ${SOURCES})
 
+# Link against filesystem
+target_link_libraries(timing_analysis PRIVATE Filesystem::Filesystem)
+
 # Set output directory
 set_target_properties(timing_analysis PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
@@ -53,8 +62,8 @@ add_custom_target(docs
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Add test target
-add_custom_target(test
+# Add test target (renamed to avoid conflict with CTest)
+add_custom_target(run-tests
     COMMAND echo "Running tests..."
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

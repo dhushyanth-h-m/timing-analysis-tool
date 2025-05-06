@@ -10,7 +10,18 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <filesystem>
+
+// Filesystem include based on compiler support
+#if defined(HAVE_STD_FILESYSTEM)
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#elif defined(HAVE_STD_EXPERIMENTAL_FILESYSTEM)
+  #include <experimental/filesystem>
+  namespace fs = std::experimental::filesystem;
+#else
+  #error "No filesystem support available"
+#endif
+
 #include <algorithm>
 #include "parser.h"
 #include "analyzer.h"
@@ -83,7 +94,7 @@ int main(int argc, char* argv[]) {
             std::vector<TimingPath> allPaths;
             TimingParser parser;
             
-            for (const auto& entry : std::filesystem::directory_iterator(inputDir)) {
+            for (const auto& entry : fs::directory_iterator(inputDir)) {
                 if (entry.is_regular_file() && entry.path().extension() == ".rpt") {
                     std::cout << "  Processing: " << entry.path().filename() << std::endl;
                     auto paths = parser.parseFile(entry.path().string());
